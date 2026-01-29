@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản Lý Sản Phẩm</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      :root {
+        --primary: #2563eb;
+        --success: #10b981;
+        --danger: #ef4444;
+        --light: #f8fafc;
+        --border: #e2e8f0;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 30px 20px;
+        font-family: "Segoe UI", Tahoma, Geneva, sans-serif;
+      }
+
+      .page-header {
+        text-align: center;
+        margin-bottom: 35px;
+        animation: slideIn 0.6s ease-out;
+      }
+
+      .page-header h1 {
+        color: white;
+        font-weight: 700;
+        font-size: 2.3rem;
+        margin-bottom: 8px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .page-header p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .main-wrapper {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.7s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .container-custom {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 0;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
+        padding: 30px 20px;
+        border-right: 2px solid var(--border);
+        overflow-y: auto;
+        max-height: 100vh;
+      }
+
+      .sidebar-title {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Search */
+      .search-section {
+        margin-bottom: 25px;
+      }
+
+      .search-input {
+        position: relative;
+      }
+
+      .search-input input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+      }
+
+      .search-input input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        outline: none;
+      }
+
+      /* Sort Buttons */
+      .sort-section {
+        margin-bottom: 25px;
+      }
+
+      .sort-group {
+        margin-bottom: 15px;
+      }
+
+      .sort-group label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .sort-btn {
+        width: 100%;
+        padding: 8px 12px;
+        border: 2px solid var(--border);
+        background: white;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: left;
+        color: #4b5563;
+      }
+
+      .sort-btn:hover {
+        border-color: var(--primary);
+        background: rgba(37, 99, 235, 0.05);
+      }
+
+      .sort-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+
+      /* Category Filter */
+      .category-section {
+        margin-bottom: 25px;
+      }
+
+      .category-item {
+        padding: 8px 0;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #4b5563;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+        padding-left: 10px;
+      }
+
+      .category-item:hover {
+        color: var(--primary);
+        border-left-color: var(--primary);
+      }
+
+      .category-item.active {
+        color: var(--primary);
+        font-weight: 700;
+        border-left-color: var(--primary);
+      }
+
+      /* Main Content */
+      .main-content {
+        padding: 30px;
+        overflow-y: auto;
+        max-height: 100vh;
+      }
+
+      /* Stats */
+      .stats-box {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .stat-card {
+        padding: 15px;
+        background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+        border-radius: 10px;
+        border-left: 4px solid var(--success);
+        text-align: center;
+      }
+
+      .stat-label {
+        font-size: 0.85rem;
+        color: #6b7280;
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--success);
+      }
+
+      /* Products Grid */
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .product-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        transition: all 0.3s;
+        cursor: pointer;
+        animation: fadeIn 0.4s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .product-card:hover {
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        transform: translateY(-5px);
+        border-color: var(--primary);
+      }
+
+      .product-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%);
+      }
+
+      .product-info {
+        padding: 15px;
+      }
+
+      .product-title {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.8em;
+      }
+
+      .product-category {
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        background: #dbeafe;
+        color: #1e40af;
+        border-radius: 4px;
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .product-price {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--success);
+        margin: 10px 0;
+      }
+
+      .product-desc {
+        font-size: 0.8rem;
+        color: #6b7280;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        min-height: 2.4em;
+      }
+
+      .product-date {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
+      /* Pagination */
+      .pagination-section {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 20px 0;
+        border-top: 2px solid var(--border);
+      }
+
+      .page-btn {
+        padding: 8px 12px;
+        border: 2px solid var(--border);
+        background: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s;
+        color: #4b5563;
+      }
+
+      .page-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .page-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      }
+
+      /* No Results */
+      .no-results {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+      }
+
+      .no-results i {
+        font-size: 3rem;
+        color: #cbd5e1;
+        margin-bottom: 15px;
+      }
+
+      .no-results p {
+        color: #6b7280;
+        font-size: 1.1rem;
+        font-weight: 500;
+      }
+
+      /* Reset Button */
+      .reset-btn {
+        width: 100%;
+        padding: 10px;
+        background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 15px;
+      }
+
+      .reset-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+      }
+
+      /* Responsive */
+      @media (max-width: 992px) {
+        .container-custom {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          padding: 20px;
+          border-right: none;
+          border-bottom: 2px solid var(--border);
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 20px;
+          max-height: auto;
+        }
+
+        .main-content {
+          padding: 20px;
+          max-height: auto;
+        }
+
+        .products-grid {
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          gap: 15px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .page-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .products-grid {
+          grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+          gap: 12px;
+        }
+
+        .product-title {
+          font-size: 0.85rem;
+        }
+
+        .product-price {
+          font-size: 1.2rem;
+        }
+
+        .sidebar {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 15px 10px;
+        }
+
+        .page-header h1 {
+          font-size: 1.5rem;
+        }
+
+        .main-wrapper {
+          border-radius: 12px;
+        }
+
+        .products-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+
+        .product-image {
+          height: 140px;
+        }
+
+        .product-info {
+          padding: 12px;
+        }
+
+        .sidebar {
+          grid-template-columns: 1fr;
+        }
+
+        .main-content {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-header">
+      <h1><i class="bi bi-shop"></i> Quản Lý Sản Phẩm</h1>
+      <p>Khám phá và quản lý bộ sưu tập sản phẩm của bạn</p>
+    </div>
+
+    <div class="main-wrapper">
+      <div class="container-custom">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <!-- Search -->
+          <div class="search-section">
+            <div class="sidebar-title">
+              <i class="bi bi-search"></i> Tìm Kiếm
+            </div>
+            <div class="search-input">
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Nhập tên sản phẩm..."
+                autocomplete="off"
+              />
+            </div>
+          </div>
+
+          <!-- Sort by Name -->
+          <div class="sort-section">
+            <div class="sidebar-title">
+              <i class="bi bi-sort-alpha-down"></i> Tên Sản Phẩm
+            </div>
+            <div class="sort-group">
+              <button class="sort-btn" id="sortNameAsc">
+                <i class="bi bi-arrow-up"></i> A → Z
+              </button>
+            </div>
+            <div class="sort-group">
+              <button class="sort-btn" id="sortNameDesc">
+                <i class="bi bi-arrow-down"></i> Z → A
+              </button>
+            </div>
+          </div>
+
+          <!-- Sort by Price -->
+          <div class="sort-section">
+            <div class="sidebar-title"><i class="bi bi-tags"></i> Giá</div>
+            <div class="sort-group">
+              <button class="sort-btn" id="sortPriceAsc">
+                <i class="bi bi-arrow-up"></i> Giá Thấp
+              </button>
+            </div>
+            <div class="sort-group">
+              <button class="sort-btn" id="sortPriceDesc">
+                <i class="bi bi-arrow-down"></i> Giá Cao
+              </button>
+            </div>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="category-section">
+            <div class="sidebar-title">
+              <i class="bi bi-filter"></i> Danh Mục
+            </div>
+            <div id="categoryList"></div>
+          </div>
+
+          <button class="reset-btn" id="resetBtn">
+            <i class="bi bi-arrow-counterclockwise"></i> Đặt Lại
+          </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+          <!-- Stats -->
+          <div class="stats-box">
+            <div class="stat-card">
+              <div class="stat-label">Tổng Sản Phẩm</div>
+              <div class="stat-value" id="totalProducts">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Kết Quả Tìm Kiếm</div>
+              <div class="stat-value" id="resultCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Trang</div>
+              <div class="stat-value" id="pageInfo">1/1</div>
+            </div>
+          </div>
+
+          <!-- Products -->
+          <div class="products-grid" id="productsGrid"></div>
+
+          <!-- No Results -->
+          <div id="noResults" class="no-results" style="display: none">
+            <i class="bi bi-inbox"></i>
+            <p>Không tìm thấy sản phẩm!</p>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination-section" id="paginationSection"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const ITEMS_PER_PAGE = 12;
+
+      const state = {
+        allProducts: [],
+        filteredProducts: [],
+        currentPage: 1,
+        selectedCategory: null,
+        searchTerm: "",
+        sortType: null,
+      };
+
+      const elements = {
+        searchInput: document.getElementById("searchInput"),
+        productsGrid: document.getElementById("productsGrid"),
+        noResults: document.getElementById("noResults"),
+        totalProducts: document.getElementById("totalProducts"),
+        resultCount: document.getElementById("resultCount"),
+        pageInfo: document.getElementById("pageInfo"),
+        paginationSection: document.getElementById("paginationSection"),
+        categoryList: document.getElementById("categoryList"),
+        sortButtons: {
+          nameAsc: document.getElementById("sortNameAsc"),
+          nameDesc: document.getElementById("sortNameDesc"),
+          priceAsc: document.getElementById("sortPriceAsc"),
+          priceDesc: document.getElementById("sortPriceDesc"),
+        },
+        resetBtn: document.getElementById("resetBtn"),
+      };
+
+      async function loadProducts() {
+        try {
+          const response = await fetch("db.json");
+          state.allProducts = await response.json();
+          state.filteredProducts = [...state.allProducts];
+
+          updateStats();
+          initCategoryFilter();
+          render();
+          attachEventListeners();
+        } catch (error) {
+          console.error("Lỗi:", error);
+          elements.noResults.style.display = "block";
+        }
+      }
+
+      function initCategoryFilter() {
+        const categories = [
+          ...new Set(state.allProducts.map((p) => p.category.name)),
+        ];
+        elements.categoryList.innerHTML = `
+                <div class="category-item active" data-category="all">
+                    Tất Cả (${state.allProducts.length})
+                </div>
+                ${categories
+                  .map((cat) => {
+                    const count = state.allProducts.filter(
+                      (p) => p.category.name === cat,
+                    ).length;
+                    return `<div class="category-item" data-category="${cat}">${cat} (${count})</div>`;
+                  })
+                  .join("")}
+            `;
+
+        document.querySelectorAll(".category-item").forEach((item) => {
+          item.addEventListener("click", () => {
+            document
+              .querySelectorAll(".category-item")
+              .forEach((i) => i.classList.remove("active"));
+            item.classList.add("active");
+            state.selectedCategory =
+              item.dataset.category === "all" ? null : item.dataset.category;
+            state.currentPage = 1;
+            applyFilters();
+          });
+        });
+      }
+
+      function applyFilters() {
+        let filtered = state.allProducts.filter((p) =>
+          p.title.toLowerCase().includes(state.searchTerm.toLowerCase()),
+        );
+
+        if (state.selectedCategory) {
+          filtered = filtered.filter(
+            (p) => p.category.name === state.selectedCategory,
+          );
+        }
+
+        state.filteredProducts = filtered;
+        state.currentPage = 1;
+        updateStats();
+        render();
+      }
+
+      function handleSearch(event) {
+        state.searchTerm = event.target.value;
+        applyFilters();
+      }
+
+      function sortProducts(type) {
+        state.sortType = type;
+        clearSortButtons();
+
+        switch (type) {
+          case "nameAsc":
+            state.filteredProducts.sort((a, b) =>
+              a.title.localeCompare(b.title, "vi"),
+            );
+            elements.sortButtons.nameAsc.classList.add("active");
+            break;
+          case "nameDesc":
+            state.filteredProducts.sort((a, b) =>
+              b.title.localeCompare(a.title, "vi"),
+            );
+            elements.sortButtons.nameDesc.classList.add("active");
+            break;
+          case "priceAsc":
+            state.filteredProducts.sort((a, b) => a.price - b.price);
+            elements.sortButtons.priceAsc.classList.add("active");
+            break;
+          case "priceDesc":
+            state.filteredProducts.sort((a, b) => b.price - a.price);
+            elements.sortButtons.priceDesc.classList.add("active");
+            break;
+        }
+
+        state.currentPage = 1;
+        render();
+      }
+
+      function clearSortButtons() {
+        Object.values(elements.sortButtons).forEach((btn) =>
+          btn.classList.remove("active"),
+        );
+      }
+
+      function updateStats() {
+        elements.totalProducts.textContent = state.allProducts.length;
+        elements.resultCount.textContent = state.filteredProducts.length;
+      }
+
+      function render() {
+        if (state.filteredProducts.length === 0) {
+          elements.productsGrid.style.display = "none";
+          elements.noResults.style.display = "grid";
+          elements.paginationSection.innerHTML = "";
+          elements.pageInfo.textContent = "0/0";
+          return;
+        }
+
+        elements.productsGrid.style.display = "grid";
+        elements.noResults.style.display = "none";
+
+        const start = (state.currentPage - 1) * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        const pageProducts = state.filteredProducts.slice(start, end);
+
+        elements.productsGrid.innerHTML = pageProducts
+          .map(
+            (product) => `
+                <div class="product-card">
+                    <img src="${product.images[0]}" alt="${product.title}" class="product-image" onerror="this.src='https://via.placeholder.com/200?text=No+Image'">
+                    <div class="product-info">
+                        <div class="product-category">${product.category.name}</div>
+                        <div class="product-title">${escapeHtml(product.title)}</div>
+                        <div class="product-price">${product.price.toLocaleString("vi-VN")} ₫</div>
+                        <div class="product-desc">${escapeHtml(product.description.substring(0, 60))}...</div>
+                        <div class="product-date"><i class="bi bi-calendar2"></i> ${formatDate(product.creationAt)}</div>
+                    </div>
+                </div>
+            `,
+          )
+          .join("");
+
+        renderPagination();
+      }
+
+      function renderPagination() {
+        const totalPages = Math.ceil(
+          state.filteredProducts.length / ITEMS_PER_PAGE,
+        );
+        elements.pageInfo.textContent = `${state.currentPage}/${totalPages}`;
+
+        let buttons = "";
+        for (let i = 1; i <= totalPages; i++) {
+          buttons += `<button class="page-btn ${i === state.currentPage ? "active" : ""}" data-page="${i}">${i}</button>`;
+        }
+
+        elements.paginationSection.innerHTML = buttons;
+
+        document.querySelectorAll(".page-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.currentPage = parseInt(btn.dataset.page);
+            render();
+            window.scrollTo(0, 300);
+          });
+        });
+      }
+
+      function attachEventListeners() {
+        elements.searchInput.addEventListener("input", handleSearch);
+        elements.sortButtons.nameAsc.addEventListener("click", () =>
+          sortProducts("nameAsc"),
+        );
+        elements.sortButtons.nameDesc.addEventListener("click", () =>
+          sortProducts("nameDesc"),
+        );
+        elements.sortButtons.priceAsc.addEventListener("click", () =>
+          sortProducts("priceAsc"),
+        );
+        elements.sortButtons.priceDesc.addEventListener("click", () =>
+          sortProducts("priceDesc"),
+        );
+        elements.resetBtn.addEventListener("click", () => {
+          state.searchTerm = "";
+          state.selectedCategory = null;
+          state.sortType = null;
+          state.currentPage = 1;
+          elements.searchInput.value = "";
+          clearSortButtons();
+          document
+            .querySelectorAll(".category-item")
+            .forEach((item) => item.classList.remove("active"));
+          document
+            .querySelector('.category-item[data-category="all"]')
+            .classList.add("active");
+          applyFilters();
+        });
+      }
+
+      function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Start
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadProducts);
+      } else {
+        loadProducts();
+      }
+    </script>
+  </body>
+</html>
